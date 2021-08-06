@@ -1,0 +1,189 @@
+---
+title: "OCSdata Instructions"
+output: rmarkdown::html_vignette
+description: >
+  How to use OCSdata
+vignette: >
+  %\VignetteIndexEntry{Instructions}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+| Table of Contents |     |
+| ----------------- | --- |
+| [Introduction](#intro) | |
+| [Arguments](#argument) | |
+| | [casestudy](#casestudy) |
+| | [outpath](#outpath) |
+| | [fork_repo](#fork) |
+| [How to Use](#howto) | |
+| | [raw_data()](#raw) |
+| | [simpler_import_data()](#simpler) |
+| | [extra_data()](#extra) |
+| | [imported_data()](#imported) |
+| | [Loading RDA Files](#rda) |
+| | [wrangled_csv()](#wrangcsv) |
+| | [wrangled_rda()](#wrangrda) |
+| | [zip_ocs()](#zip) |
+| | [clone_ocs()](#clone) |
+
+## <a name="intro"></a>Introduction
+
+OCSdata is an R package to help you access and download case study data files hosted on the Open Case Studies (OCS) [GitHub](https://github.com/opencasestudies). The package provides several different functions to enable users to grab the data they need at different sections in the case study, as well as download the whole case study repository. All the user needs to use the package is the name of the case study repository and a file path to the directory where the data should be saved.
+
+All case study data is available on GitHub. However, case study users new to GitHub can find it a confusing process to access data from repositories. On top of that, users then must move the downloaded data into to the appropriate local directory. Overall, this process leaves room for error and acts as a barrier to introductory level students. Troubleshooting these errors can be a headache for both students and instructors and eats away at valuable learning time. OCSdata is an R package that bridges the gap from web-browser to Rstudio, allowing users to automatically download the data they need with simple functions all within R.
+
+This document outlines how the functions in the OCSdata package should be used to access data from [Open Case Studies](https://www.opencasestudies.org/). The [arguments](#argument) section explains all of the inputs necessary for the functions to run. The [how to use](#howto) section explains the purpose of each function and gives examples. The functions are also connected to the corresponding case study section when applicable. 
+
+## <a name="argument"></a>Arguments
+
+### <a name="casestudy"></a>casestudy
+
+All of the OCSdata functions require a case study ID to be input to the `casestudy` argument field. This ID should match with the case study you are intending to download data from. See the table below to see the case study names and their corresponding ID.
+
+| Case Study Name | Case Study ID |  
+| --------------- | ------------- |
+| [Exploring global patterns of obesity across rural and urban regions](https://www.opencasestudies.org/ocs-bp-rural-and-urban-obesity/) | [ocs-bp-rural-and-urban-obesity](https://github.com/opencasestudies/ocs-bp-rural-and-urban-obesity) |
+| [Predicting Annual Air Pollution](https://www.opencasestudies.org/ocs-bp-air-pollution/) | [ocs-bp-air-pollution](https://github.com/opencasestudies/ocs-bp-air-pollution) |
+| [Vaping Behaviors in American Youth](https://www.opencasestudies.org/ocs-bp-vaping-case-study/) | [ocs-bp-vaping-case-study](https://github.com/opencasestudies/ocs-bp-vaping-case-study) |
+| [Opioids in United States](https://www.opencasestudies.org/ocs-bp-opioid-rural-urban/) | [ocs-bp-opioid-rural-urban](https://github.com/opencasestudies/ocs-bp-opioid-rural-urban) |
+| [Influence of Multicollinearity on Measured Impact of Right-to-Carry Gun Laws Part 1](https://www.opencasestudies.org/ocs-bp-RTC-wrangling/) | [ocs-bp-RTC-wrangling](https://github.com/opencasestudies/ocs-bp-RTC-wrangling) |
+| [Influence of Multicollinearity on Measured Impact of Right-to-Carry Gun Laws Part 2](https://www.opencasestudies.org/ocs-bp-RTC-analysis/) | [ocs-bp-RTC-analysis](https://github.com/opencasestudies/ocs-bp-RTC-analysis) |
+| [Disparities in Youth Disconnection](https://www.opencasestudies.org/ocs-bp-youth-disconnection/) | [ocs-bp-youth-disconnection](https://github.com/opencasestudies/ocs-bp-youth-disconnection) |
+| [Mental Health of American Youth](https://www.opencasestudies.org/ocs-bp-youth-mental-health/) | [ocs-bp-youth-mental-health](https://github.com/opencasestudies/ocs-bp-youth-mental-health) |
+| [School Shootings in the United States](https://www.opencasestudies.org/ocs-bp-school-shootings-dashboard/) | [ocs-bp-school-shootings-dashboard](https://github.com/opencasestudies/ocs-bp-school-shootings-dashboard) |
+| [Exploring CO2 emissions across time](https://www.opencasestudies.org/ocs-bp-co2-emissions/) | [ocs-bp-co2-emissions](https://github.com/opencasestudies/ocs-bp-co2-emissions) |
+| [Exploring global patterns of dietary behaviors associated with health risk](https://www.opencasestudies.org/ocs-bp-diet/) | [ocs-bp-diet](https://github.com/opencasestudies/ocs-bp-diet) |
+
+$\color{blue}{\text{The examples below use the "Opioids in United States" case study. To download data from a different case study,}}$ 
+$\color{blue}{\text{change "ocs-bp-opioid-rural-urban" to the ID of the case study you are interested in. (See table for list of IDs)}}$ 
+
+$\color{blue}{\text{Note: All of the case studies have at least raw, imported, and wrangled data. However, not all of them have extra}}$
+$\color{blue}{\text{ or simpler_import data. Keep this in mind when using the extra_data() and simpler_import_data() functions.}}$
+
+### <a name="outpath"></a>outpath
+
+All of the functions also have an `outpath` argument to specify where the files should be saved to on your computer. This argument defaults to `NULL` which will ask you to specify a file path interactively, suggesting your current working directory as an option. If the user's session is not interactive, an error message is returned that tells the user to input a valid file path to `outpath`. The user is required to specify a file path to avoid unintended overwriting. 
+
+Temporary directories are used in all of the examples provided in the package documentation. This is to prevent the functions from overwriting users' local files. To test the package functions with our examples and actually view the downloaded data folder, replace `tempdir()` with the file path to the desired directory as a character string.
+
+### <a name="fork"></a>fork_repo
+
+This is a logical argument and only used for `clone_ocs()`. `FALSE` will clone the repo, while `TRUE` will fork the repo and then clone the fork. Defaults to `NA` which will fork or clone based on your repository permissions. 
+
+## <a name="howto"></a>How to Use
+
+The following examples illustrate all of the different functions and how you can use them to stop and start at different sections of the case study. These examples will download the data into temporary directories to prevent overwriting local files. To download them somewhere else, specify the path to the desired directory (folder) in the `outpath` argument.
+
+$\color{red}{\text{Note: To download the data into your current working directory, change the input for `outpath` to `getwd()`.}}$ 
+
+```R
+library(OCSdata)
+```
+
+### <a name="raw"></a>Starting at data import:
+The `raw_data` function will download the raw data files that can be imported into R.
+
+```R
+raw_data("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+
+The function will create an OCS_data/data/raw directory where the raw data files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/raw_data_directory.gif "raw data directory")
+
+If the input to `outpath` is the path to a folder called "demo," the directory structure will look like this: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/raw_data_directory_structure.png "raw directory structure")
+
+
+### <a name="simpler"></a>For file formats that are easier to import:
+The `simpler_import_data` function will download raw data files that have been converted to file formats that are easier to import into R, typically .csv. Some case studies offer this option when the original raw files require a more complicated import step. 
+
+```R
+simpler_import_data("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+
+The function will create an OCS_data/data/simpler_import directory where the data files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/simpler_data_directory.gif "simpler_import data directory")
+
+If the input to `outpath` is the path to a folder called "demo," the directory structure will look like this: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/simpler_data_directory_structure.png "simpler_import directory structure")
+
+### <a name="extra"></a>For more data on this topic: 
+The `extra_data` function will download raw data files that are not used in the case study, but are available for users to further analyze. 
+
+```R
+extra_data("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+
+The function will create an OCS_data/data/extra directory where the data files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/extra_data_directory.gif "extra data directory")
+
+If the input to `outpath` is the path to a folder called "demo," the directory structure will look like this: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/extra_data_directory_structure.png "extra directory structure")
+
+### <a name="imported"></a>Starting at data exploration/wrangling sections: 
+The `imported_data` function will download raw data files in .rda format. This means the data have already been imported into R objects. 
+
+```R
+imported_data("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+The function will create an OCS_data/data/imported directory where the imported data files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/imported_data_directory.gif "imported data directory")
+
+If the input to `outpath` is the path to a folder called "demo," the directory structure will look like this: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/imported_data_directory_structure.png "imported directory structure")
+
+### <a name="rda"></a>Loading RDA Files
+RDA files can be imported into R by either double clicking on the files in Rstudio or using the `load()` function. The following examples show how to use both methods with the "land_area.rda" file from the imported data folder we just downloaded.
+
+**Double Click Method:**
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/load_rda.gif "load RDA example")
+
+**Load Function Method:**
+```R
+file_path = "~/Desktop/demo/OCS_data/data/imported/land_area.rda"
+load(file_path)
+```
+In this case the OCS_data folder is saved to a demo folder in the Desktop directory. To use this method, replace the value assigned to `file_path` with the file path to your RDA file. 
+
+Both of these methods will load the RDA file into your global environment as an R object that is ready to be used. 
+
+### <a name="wrangcsv"></a>Starting at data visualization/analysis sections:
+The following functions will download the data files that have already been wrangled and are ready to be analyzed. These come in both .csv and .rda formats.
+
+**CSV**:
+```R
+wrangled_csv("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+The function will create an OCS_data/data/wrangled directory where the wrangled csv files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/wrangled_csv_directory.gif "wrangled csv directory")
+
+<a name="wrangrda"></a>**RDA**:
+```R
+wrangled_rda("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+The function will create an OCS_data/data/wrangled directory where the wrangled rda files can be found: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/wrangled_rda_directory.gif "wrangled rda directory")
+
+These files can be loaded into R using the methods described above in the "Loading RDA Files" section.
+
+If the input to `outpath` is the path to a folder called "demo," the directory structure will look like this: 
+![](https://raw.githubusercontent.com/mbreshock/images/master/OCSdata/wrangled_data_directory_structure.png "wrangled directory structure")
+
+### <a name="zip"></a>Download case study repository zip file: 
+The `zip_ocs` function will download the all of the repository files in a .zip folder and unzip them into a specified directory. 
+
+```R
+zip_ocs("ocs-bp-opioid-rural-urban", outpath = tempdir())
+```
+
+### <a name="clone"></a>Clone the case study GitHub repository: 
+The `clone_ocs` function will clone the specified case study's GitHub repository with git and download the whole repository to a specified directory. This function requires your GitHub personal access token (PAT) to be registered in R/RStudio.
+
+```R
+clone_ocs("ocs-bp-opioid-rural-urban", outpath = tempdir(), fork_repo = TRUE)
+```
+Setting fork_repo = TRUE will fork the repo first and then clone the fork, 
+while FALSE will clone the repo directly from the Open Case Studies GitHub. 
+The default is fork_repo = NA, which will fork or clone based on your repository permissions.  
+
