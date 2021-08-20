@@ -36,7 +36,7 @@
 #' data folder should be saved.
 #'
 #' @return If download is successful, the path to the downloaded data folder is
-#' returned. Otherwise the appropriate error message is returned.
+#' printed and the logical value TRUE is returned. Otherwise the appropriate error message is printed.
 #'
 #' @importFrom httr GET write_disk content
 #' @importFrom purrr map
@@ -121,7 +121,8 @@ raw_data <- function(casestudy, outpath = NULL){
           }
         }
       }
-      return(cat(paste("The downloaded files are in:", rawpath)))
+      cat(paste("The downloaded files are in:", rawpath, " "))
+      return(TRUE)
 
     } else {
       return("The specified directory does not exist.")

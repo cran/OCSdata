@@ -44,7 +44,7 @@
 #' will be cloned. If you cannot push, the repo will be forked and cloned.
 #'
 #' @return If download is successful, the path to the downloaded data folder is
-#' returned. Otherwise the appropriate error message is returned.
+#' printed and the logical value TRUE is returned. Otherwise the appropriate error message is printed.
 #'
 #' @importFrom usethis create_from_github
 #' @export
@@ -93,7 +93,10 @@ clone_ocs <- function(casestudy, outpath=NULL,fork_repo=NA){
     if (dir.exists(outpath)){
       create_from_github(paste0('opencasestudies/',casestudy), destdir = outpath,
                          fork = fork_repo, open = FALSE)
-      return(cat(paste("The downloaded repository is in:", outpath)))
+
+      cat(paste("The downloaded repository is in:", outpath, " "))
+      return(TRUE)
+
     } else {
       return("The specified directory does not exist.")
     }

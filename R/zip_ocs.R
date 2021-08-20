@@ -38,7 +38,7 @@
 #' data folder should be saved.
 #'
 #' @return If download is successful, the path to the downloaded data folder is
-#' returned. Otherwise the appropriate error message is returned.
+#' printed and the logical value TRUE is returned. Otherwise the appropriate error message is printed.
 #'
 #' @importFrom usethis use_zip
 #' @export
@@ -87,7 +87,10 @@ zip_ocs <- function(casestudy, outpath=NULL){
     if (dir.exists(outpath)){
       use_zip(paste0('opencasestudies/',casestudy), destdir = outpath,
               cleanup = TRUE)
-      return(cat(paste("The downloaded repository is in:", outpath)))
+
+      cat(paste("The downloaded repository is in:", outpath, " "))
+      return(TRUE)
+
     } else {
       return("The specified directory does not exist.")
     }
